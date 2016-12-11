@@ -21,17 +21,17 @@
         <div class="row">
           <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-               {{--  @foreach ($feedUrls as $feed)
-                  <li>{{$feed}}</li>
-                @endforeach --}}
+                @foreach ($feedUrls as $key => $feed)
+                  <li><a href="rss/{{$key}}">{{$feed}}</a></li>
+                @endforeach
             </ul>
           </div>
           <div class="col-sm-9 col-md-10 main">
              <div class="header">
-              <h1><a href="{{ $data["permalink"] }}">{{ $data["title"] }}</a></h1>
+              {{-- 111<h1><a href="{{ $data["permalink"] }}">{{ $data["title"] }}</a></h1> --}}
             </div>
 
-            @foreach ($data["items"] as $item)
+            @foreach ($items as $item)
               <div class="item">
                 <h2><a href="{{ $item->get_permalink() }}">{{ $item->get_title() }}</a></h2>
                 {!! $item->get_content() !!}
