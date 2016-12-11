@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Feed extends Model
+class Feedurl extends Model
 {
     public function User()
     {

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Log;
-use App\Feed;
+use App\Feedurl;
 use Illuminate\Http\Request;
 use App\Http\Requests\AddFeedUrl;
 
@@ -13,7 +13,7 @@ class RssController extends Controller
     {
        Log::info(__METHOD__ . " : bof");
 
-       $feeds = Feed::all();
+       $feeds = Feedurl::all();
 
        return view('rss.create')->with(compact('feeds'));
        
@@ -25,12 +25,30 @@ class RssController extends Controller
 
         $user = auth()->user();
 
-        $feed = new Feed;
+        $feed = new Feedurl;
 
         $feed->url = filter_var($request->url, FILTER_SANITIZE_STRING);
 
-        $user->Feeds()->save($feed);
+        $user->Feedurls()->save($feed);
 
         return redirect("/rss/create");
+    }
+
+    public function destroy($id, Request $request)
+    {
+       Log::info(__METHOD__ . " : bof");
+
+       $feed = Feed::findOrFail($id);
+
+       if ($feed->user_id == auth()->user()->id) {
+           
+           $feed->delete();
+
+           return redirect()->back();
+       }
+
+       return "you do not have permission to delete this feed";
+
+
     }
 }

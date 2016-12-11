@@ -13,7 +13,7 @@ class CreateFeedsTable extends Migration
      */
     public function up()
     {
-        Schema::create('feeds', function (Blueprint $table) {
+        Schema::create('feedurls', function (Blueprint $table) {
             $table->increments('id');
             $table->string('url');
             $table->integer('user_id')->unsigned();
@@ -29,6 +29,6 @@ class CreateFeedsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('feeds');
+        Schema::dropIfExists('feedurls');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Feeds;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,6 +24,31 @@ class HomeController extends Controller
      */
     public function index()
     {
+        if (auth()->check()) {
+            
+            $feeds = auth()->user()->Feedurls;
+
+            if (!is_null($feeds)) {
+
+                $feedUrls = [];
+
+                foreach ($feeds as $feed) {
+
+                    $feedUrls[$feed->id] = $feed->url;
+                }
+
+                $feed = Feeds::make($feedUrls,5);
+
+                $data = array(
+                  'title'     => $feed->get_title(),
+                  'permalink' => $feed->get_permalink(),
+                  'items'     => $feed->get_items(),
+                );
+
+                return view('home')->with(compact('data', 'feedUrls'));
+            }
+        }
+
         return view('home');
     }
 }

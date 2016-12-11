@@ -27,8 +27,8 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public function Feeds()
+    public function Feedurls()
     {
-        return $this->hasMany("App\Feed");
+        return $this->hasMany("App\Feedurl");
     }
 }
