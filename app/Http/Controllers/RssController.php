@@ -18,7 +18,6 @@ class RssController extends Controller
         $feeds = auth()->user()->Feedurls;
 
         if (!is_null($feeds)) {
-
             $feedUrls = [];
 
             foreach ($feeds as $feed) {
@@ -30,23 +29,16 @@ class RssController extends Controller
             $items = $feed->get_items();
 
             foreach ($feeds as $key => $feedData) {
-
                 $url = $feedData->url;
 
                 foreach ($items as &$item) {
-
-                    if ($item->get_feed()->subscribe_url() == $url) { 
-
-                      // dd(auth()->user()->readList->find($feedData->id)->pivot->count());
-
-                        // $feedData->unread = $item->get_feed()->get_item_quantity();
+                    if ($item->get_feed()->subscribe_url() == $url) {
 
                         $feedData->name = $item->get_feed()->get_title();
 
                         $feedRecord = Item::where('permalink', $item->get_permalink())->first();
 
                         if (is_null($feedRecord)) {
-
                             $newItem = new Item();
 
                             $newItem->permalink = $item->get_permalink();
@@ -56,9 +48,7 @@ class RssController extends Controller
                             $item->id = $newItem->id;
 
                             $feedData->unread++;
-
                         } else {
-
                             $item->id = $feedRecord->id;
                         }
 
@@ -124,29 +114,25 @@ class RssController extends Controller
         $items = $feed->get_items();
 
         foreach ($items as &$item) {
+            $feedRecord = Item::where('permalink', $item->get_permalink())->first();
 
-              $feedRecord = Item::where('permalink', $item->get_permalink())->first();
+            if (is_null($feedRecord)) {
+                $newItem = new Item();
 
-              if (is_null($feedRecord)) {
+                $newItem->permalink = $item->get_permalink();
 
-                  $newItem = new Item();
+                $feedUrl = Feedurl::findOrFail($id);
 
-                  $newItem->permalink = $item->get_permalink();
+                $feedUrl->Items()->save($newItem);
 
-                  $feedUrl = Feedurl::findOrFail($id);
+                $feedUrl->unread++;
 
-                  $feedUrl->Items()->save($newItem);
+                $feedUrl->save();
 
-                  $feedUrl->unread++;
-
-                  $feedUrl->save();
-
-                  $item->id = $newItem->id;
-
-              } else {
-
-                  $item->id = $feedRecord->id;
-              }
+                $item->id = $newItem->id;
+            } else {
+                $item->id = $feedRecord->id;
+            }
         }
 
         $feeds = $this->calculateUnreads(auth()->user()->Feedurls, $feed);
@@ -163,13 +149,10 @@ class RssController extends Controller
         $readItems= Feedurl::findOrFail($id)->Items;
 
         foreach ($readItems as $item) {
-            
             $user->readList()->attach($item->id);
-
         }
 
         return redirect()->back();
-
     }
 
     public function calculateUnreads($feedurls, $feedContent)
@@ -183,18 +166,20 @@ class RssController extends Controller
         foreach ($feedContent->get_items() as $item) {
 
             $feedItem[$item->get_feed()->subscribe_url()] = isset($feedItem[$item->get_feed()->subscribe_url()]) ? $feedItem[$item->get_feed()->subscribe_url()]+1 :1;
+
         }
 
-        foreach ($feedurls as $key => $feed) {
+        foreach ($feedurls as $key => &$feed) {
 
             $readUrls = $user->readList()->where('feedurl_id', $feed->id)->get();
 
-            if(isset($feedItem[$feed->url])) {
-                
-                $feed->unread = $feedItem[$feed->url] - count($readUrls);
+            if (isset($feedItem[$feed->url])) {
 
-                $feed->save();
+                $feed->unread = ($feedItem[$feed->url] - count($readUrls)) < 0 ? 0 : $feedItem[$feed->url] - count($readUrls);
 
+            } else {
+
+                $feed->unread = ($feed->unread - count($readUrls)) < 0 ? 0 : $feed->unread - count($readUrls);
             }
         }
 
@@ -208,26 +193,29 @@ class RssController extends Controller
         $itemsList = [];
 
         foreach ($feedContent->get_Items() as $key => $item) {
-            
-            if(null !== $item->get_feed()->subscribe_url()) {
-                $itemList [$item->get_feed()->subscribe_url()] = Item::whereHas('Feedurl', function($query) use($item) {
+            if (null !== $item->get_feed()->subscribe_url()) {
+                $itemList [$item->get_feed()->subscribe_url()] = Item::whereHas('Feedurl', function ($query) use ($item) {
                     $query->where('url', $item->get_feed()->subscribe_url());
                 })->get()->pluck('permalink', 'id')->toArray();
             }
 
-           unset($itemList[$item->get_feed()->subscribe_url()][array_search($item->get_permalink(), $itemList[$item->get_feed()->subscribe_url()])]);
-
+            unset($itemList[$item->get_feed()->subscribe_url()][array_search($item->get_permalink(), $itemList[$item->get_feed()->subscribe_url()])]);
         }
 
-        if(count($itemsList)) {
-
-            dd($itemList);
+        if (count($itemsList)) {
 
             foreach ($itemList as $feedname) {
-    
+
+                $feed = Feedurl::where('url', $feedname)->first();
+
+                $feed->unread = $feed->unread - count($itemList[$feedname]);
+
+                $feed->save();
+                
                 foreach ($feedname as $key => $permalink) {
-                    
+
                     Item::findOrFail($key)->delete();
+
                 }
             }
         }
