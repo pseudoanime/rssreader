@@ -164,6 +164,7 @@ return [
         Illuminate\View\ViewServiceProvider::class,
         Collective\Html\HtmlServiceProvider::class,
         willvincent\Feeds\FeedsServiceProvider::class,
+        'Clockwork\Support\Laravel\ClockworkServiceProvider',
         
         /*
          * Package Service Providers...

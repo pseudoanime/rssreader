@@ -10,4 +10,9 @@ class Feedurl extends Model
     {
         return $this->belongsTo("App\User");
     }
+
+    public function Items()
+    {
+        return $this->hasMany("App\Item");
+    }
 }

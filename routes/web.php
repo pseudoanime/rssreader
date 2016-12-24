@@ -22,4 +22,6 @@ Route::get('/home', 'HomeController@index');
 Route::group(['middleware' => 'auth'], function() {
     
     Route::resource("rss", "RssController");
+
+    Route::get('rss/{id}/read', "RssController@markAllRead");
 });

@@ -33,7 +33,7 @@
                       @foreach ($feeds as $key => $feed)
                         <tr>
                             <th scope="row">{{$key+1}}</th>
-                            <td>{{$feed->url}}</td>
+                            <td><a href = "/rss/{{$feed->id}}">{{$feed->url}}</a></td>
                             <td>
                                 {{ Form::open(['url' => 'rss/' . $feed->id, 'method' => 'delete']) }}
                                     {{Form::submit("&#10006;", ["class" => "btn btn-link"])}}

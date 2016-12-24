@@ -15,29 +15,30 @@
                 </div>
             </div>
         </div> --}}
-        <?php
-         // var_dump($data);
-        ?>
         <div class="row">
           <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                @foreach ($feedUrls as $key => $feed)
-                  <li><a href="rss/{{$key}}">{{$feed}}</a></li>
+                @foreach ($feeds as $feed)
+                  <li><a href="{{env("APP_URL") . "/rss/" . $feed->id}}">{{$feed->name}} ({{$feed->unread}})</a></li>
                 @endforeach
             </ul>
           </div>
           <div class="col-sm-9 col-md-10 main">
-             <div class="header">
-              {{-- 111<h1><a href="{{ $data["permalink"] }}">{{ $data["title"] }}</a></h1> --}}
-            </div>
-
-            @foreach ($items as $item)
-              <div class="item">
-                <h2><a href="{{ $item->get_permalink() }}">{{ $item->get_title() }}</a></h2>
-                {!! $item->get_content() !!}
-                <p><small>Posted on {{ $item->get_date('j F Y | g:i a') }}</small></p>
-              </div>
-            @endforeach
+            @if(array_diff(array_column($items, 'id'),$read))
+              <h4><a href = "{{Request::url() . "/read"}}" class="pull-right">Mark all as read </a> </h4>
+              @foreach ($items as $item)
+                @if(!in_array($item->id, $read))
+                <br>
+                  <div class="item">
+                    <h2><a href="{{ $item->get_permalink() }}">{{ $item->get_title() }}</a></h2>
+                    {!! $item->get_content() !!}
+                    <p><small>Posted on {{ $item->get_date('j F Y | g:i a') }}</small></p>
+                  </div>
+                @endif
+              @endforeach
+            @else
+                <div class="col-md-5 col-md-offset-4">You have no unread items for this feed.</div>
+            @endif
           </div>
         </div>
     @endif

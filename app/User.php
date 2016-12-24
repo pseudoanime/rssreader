@@ -31,4 +31,9 @@ class User extends Authenticatable
     {
         return $this->hasMany("App\Feedurl");
     }
+
+    public function readList()
+    {
+        return $this->belongsToMany("App\Item", "readlists");
+    }
 }
