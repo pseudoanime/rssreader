@@ -18,10 +18,13 @@ class RssController extends Controller
         $feeds = auth()->user()->Feedurls;
 
         if (!is_null($feeds)) {
+            
             $feedUrls = [];
 
             foreach ($feeds as $feed) {
+
                 $feedUrls[$feed->id] = $feed->url;
+
             }
 
             $feed = Feeds::make($feedUrls);
@@ -29,9 +32,11 @@ class RssController extends Controller
             $items = $feed->get_items();
 
             foreach ($feeds as $key => $feedData) {
+
                 $url = $feedData->url;
 
                 foreach ($items as &$item) {
+
                     if ($item->get_feed()->subscribe_url() == $url) {
 
                         $feedData->name = $item->get_feed()->get_title();
@@ -39,6 +44,7 @@ class RssController extends Controller
                         $feedRecord = Item::where('permalink', $item->get_permalink())->first();
 
                         if (is_null($feedRecord)) {
+
                             $newItem = new Item();
 
                             $newItem->permalink = $item->get_permalink();
@@ -48,8 +54,11 @@ class RssController extends Controller
                             $item->id = $newItem->id;
 
                             $feedData->unread++;
+
                         } else {
+
                             $item->id = $feedRecord->id;
+
                         }
 
                         $feedData->save();
@@ -81,7 +90,8 @@ class RssController extends Controller
 
         $feed = new Feedurl;
 
-        $feed->url = filter_var($request->url, FILTER_SANITIZE_STRING);
+        //additional code to capture rss from url
+        $feed->url = Feeds::make(filter_var($request->url, FILTER_SANITIZE_STRING))->get_items()[0]->get_feed()->subscribe_url();
 
         $user->Feedurls()->save($feed);
 
@@ -130,8 +140,11 @@ class RssController extends Controller
                 $feedUrl->save();
 
                 $item->id = $newItem->id;
+
             } else {
+
                 $item->id = $feedRecord->id;
+
             }
         }
 
@@ -211,7 +224,7 @@ class RssController extends Controller
                 $feed->unread = $feed->unread - count($itemList[$feedname]);
 
                 $feed->save();
-                
+
                 foreach ($feedname as $key => $permalink) {
 
                     Item::findOrFail($key)->delete();

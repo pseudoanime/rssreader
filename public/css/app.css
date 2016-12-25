@@ -7692,4 +7692,17 @@ button.close {
   padding-top: 30px;
 }
 
+.item {
+  width: 100%;
+  max-width: 100%;
+}
+
+img {
+  max-width: 100%;
+}
+
+.tickbox {
+  font-size: 200%;
+}
+
 /*# sourceMappingURL=app.css.map */
