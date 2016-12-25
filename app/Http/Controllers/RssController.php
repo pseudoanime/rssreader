@@ -39,8 +39,6 @@ class RssController extends Controller
 
                     if ($item->get_feed()->subscribe_url() == $url) {
 
-                        $feedData->name = $item->get_feed()->get_title();
-
                         $feedRecord = Item::where('permalink', $item->get_permalink())->first();
 
                         if (is_null($feedRecord)) {
@@ -91,7 +89,12 @@ class RssController extends Controller
         $feed = new Feedurl;
 
         //additional code to capture rss from url
-        $feed->url = Feeds::make(filter_var($request->url, FILTER_SANITIZE_STRING))->get_items()[0]->get_feed()->subscribe_url();
+
+        $feedItem = Feeds::make(filter_var($request->url, FILTER_SANITIZE_STRING))->get_items()[0];
+
+        $feed->url = $feedItem->get_feed()->subscribe_url();
+
+        $feed->name = $feedItem->get_feed()->get_title();
 
         $user->Feedurls()->save($feed);
 

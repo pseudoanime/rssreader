@@ -27,9 +27,7 @@
             @if(array_diff(array_column($items, 'id'),$read))
               <h4><a href = "{{Request::url() . "/read"}}" class="pull-right">Mark all as read </a> </h4>
               @foreach ($items as $item)
-              <?php isset($item->id)  ?  $item->id: var_dump("ID MISSING!!!") ;
-              ?>
-                {{-- @if(!in_array($item->id, $read)) --}}
+                @if(!in_array($item->id, $read))
                 <br>
                   <div class="row item">
                     <h2>
@@ -38,10 +36,11 @@
                         <span class="glyphicon glyphicon glyphicon-ok-sign pull-right" aria-hidden="true"></span>
                       </button>
                     </h2>
+                    {{-- {!!$item->get_description() !!} --}}
                     {!! $item->get_content() !!}
                     <p><small>Posted on {{ $item->get_date('j F Y | g:i a') }}</small></p>
                   </div>
-                {{-- @endif --}}
+                @endif
               @endforeach
             @else
                 <div class="col-md-5 col-md-offset-4">You have no unread items for this feed.</div>
